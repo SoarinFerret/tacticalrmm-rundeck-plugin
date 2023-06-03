@@ -1,0 +1,213 @@
+name: tacticalrmm-plugin
+rundeckPluginVersion: 1.2
+author: "Cody Ernesti"
+date: 2023-06-02
+license: Apache 2.0
+version: "0.0.1"
+url: https://github.com/soarinferret/tacticalrmm-rundeck-plugin
+tags:
+  - script
+  - node executor
+  - resource model source
+  - file copier
+providers:
+  - name: trmm.modelsource
+    service: ResourceModelSource
+    title: TacticalRMM / Resource Model
+    plugin-type: script
+    script-interpreter: python3 -u
+    script-file: model-source.py
+    resource-format: resourcejson
+    config:
+      - type: String
+        name: clientid
+        title: Client ID
+        description: Optionally filter agents by client id
+        required: false
+        renderingOptions:
+          groupName: Config
+      - type: String
+        name: siteid
+        title: Site ID
+        description: Optionally filter agents by site id. Overrides Client ID.
+        required: false
+        renderingOptions:
+          groupName: Config
+      - name: platform
+        type: Select
+        title: "Filter by Platform"
+        description: "Optionally limit the platform"
+        values: windows, linux, darwin
+        renderingOptions:
+          groupName: Config
+      - type: Boolean
+        name: use_agent_id
+        title: Append Agent ID to Nodename
+        description: 'Appends the Agent ID to the hostname for the nodename - useful when duplicate hostnames exist'
+        renderingOptions:
+          groupName: Config
+      - type: String
+        name: tags
+        title: Tags
+        description: 'Add comma separated static tags.'
+        renderingOptions:
+          groupName: Config
+      - name: url
+        type: String
+        title: URL
+        description: Enter the URL for the TacticalRMM API
+        required: false
+        renderingOptions:
+          groupName: Authentication
+      - name: token_storage_path
+        type: String
+        title: "Access Token Storage Path"
+        required: false
+        description: "Select API Access Token from Storage Path"
+        renderingOptions:
+          groupName: Authentication
+          selectionAccessor: "STORAGE_PATH"
+          valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+          storage-path-root: "keys"
+      - name: access_token
+        type: String
+        title: Access Token
+        required: false
+        description: "API Access Token. Token set here will override the token from the storage path."
+        renderingOptions:
+          groupName: Authentication
+          displayType: PASSWORD
+
+  - name: trmm.node-executor
+    service: NodeExecutor
+    title: TacticalRMM / Node Executor
+    description: 'execute the specified job on the TRMM agent'
+    plugin-type: script
+    script-interpreter: python3 -u
+    script-file: node-executor.py
+    script-args: ${node.agentId} ${exec.command}
+    config:
+      - name: linux_shell
+        type: String
+        title: "Linux Executable"
+        description: "Change the remote shell used to execute on TRMM Linux agents. Should be an absolute path to the executable."
+        default: "/bin/bash"
+        required: true
+        renderingOptions:
+          groupName: Config
+      - name: win_shell
+        type: Select
+        title: "Windows Executable"
+        description: "Change the remote shell used to execute on TRMM Windows agents."
+        default: "powershell"
+        values: cmd, powershell
+        required: true
+        renderingOptions:
+          groupName: Config
+      - name: timeout
+        type: Integer
+        title: "Default Timeout"
+        description: "Change the timeout period to wait for job execution."
+        default: 360
+        required: true
+        renderingOptions:
+          groupName: Config
+      - name: url
+        type: String
+        title: URL
+        description: Enter the URL for the TacticalRMM API
+        required: false
+        renderingOptions:
+          groupName: Authentication
+      - name: token_storage_path
+        type: String
+        title: "Access Token Storage Path"
+        required: false
+        description: "Select API Access Token from Storage Path"
+        renderingOptions:
+          groupName: Authentication
+          selectionAccessor: "STORAGE_PATH"
+          valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+          storage-path-root: "keys"
+      - name: access_token
+        type: String
+        title: Access Token
+        required: false
+        description: "API Access Token. Token set here will override the token from the storage path."
+        renderingOptions:
+          groupName: Authentication
+          displayType: PASSWORD
+      - name: verify_ssl
+        type: Boolean
+        title: "Verify ssl"
+        description: "Verify ssl for SSL connections"
+        required: false
+        renderingOptions:
+          groupName: Authentication
+
+  - name: trmm.file-copy
+    service: FileCopier
+    title: TacticalRMM / File Copier
+    description: 'Copy a file to the destination agent by base64 decode over the shell.'
+    plugin-type: script
+    script-interpreter: python3 -u
+    script-file: file-copier.py
+    script-args: ${node.agentId}
+    config:
+      - name: linux_shell
+        type: String
+        title: "Linux Executable"
+        description: "Change the remote shell used to execute on TRMM Linux agents. Should be an absolute path to the executable."
+        default: "/bin/bash"
+        required: true
+        renderingOptions:
+          groupName: Config
+      - name: win_shell
+        type: Select
+        title: "Windows Executable"
+        description: "Change the remote shell used to execute on TRMM Windows agents."
+        default: "powershell"
+        values: cmd, powershell
+        required: true
+        renderingOptions:
+          groupName: Config
+      - name: timeout
+        type: Integer
+        title: "Default Timeout"
+        description: "Change the timeout period to wait for job execution."
+        default: 360
+        required: true
+        renderingOptions:
+          groupName: Config
+      - name: url
+        type: String
+        title: URL
+        description: Enter the URL for the TacticalRMM API
+        required: false
+        renderingOptions:
+          groupName: Authentication
+      - name: token_storage_path
+        type: String
+        title: "Access Token Storage Path"
+        required: false
+        description: "Select API Access Token from Storage Path"
+        renderingOptions:
+          groupName: Authentication
+          selectionAccessor: "STORAGE_PATH"
+          valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+          storage-path-root: "keys"
+      - name: access_token
+        type: String
+        title: Access Token
+        required: false
+        description: "API Access Token. Token set here will override the token from the storage path."
+        renderingOptions:
+          groupName: Authentication
+          displayType: PASSWORD
+      - name: verify_ssl
+        type: Boolean
+        title: "Verify ssl"
+        description: "Verify ssl for SSL connections"
+        required: false
+        renderingOptions:
+          groupName: Authentication
